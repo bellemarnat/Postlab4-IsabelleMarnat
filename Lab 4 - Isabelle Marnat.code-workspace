@@ -1,9 +1,89 @@
-{
-	"folders": [
-		{
-			"name": "Lab 4 - Isabelle Marnat",
-			"path": "../../../../../Documents/PlatformIO/Projects/Lab 4 - Isabelle Marnat"
-		}
-	],
-	"settings": {}
+#include <Arduino.h>
+#include <ESP32Servo.h>
+#include "driver/ledc.h"
+
+Servo myservo;      // Crear un objeto de tipo Servo
+int servoPin = 19; // Pin al que está conectado el servo
+int angle = 90; // Posición inicial del servo (90 grados)
+int increment = 5; // Incremento de posición al presionar los botones
+
+int buttonPin1 = 5; // botón giro izquierda (B1)
+int buttonPin2 = 18; // botón giro derecho (B2)
+int buttonPin3 = 15; // botón para seleccion (B3)
+int buttonPin4 = 23; // botón para brillo (B4)
+
+int ledRoja = 12; // Pin LED Roja
+int ledAzul = 27; // Pin LED Azul
+int ledVerde = 14; // Pin LED Verde
+int ledSelec = 0; // LED seleccionada
+int ledBrillo = 0; // Brillo actual del LED
+
+void setup() {
+  myservo.attach(servoPin); // Asociar el objeto Servo al pin del servo
+  myservo.write(angle);     // Mover el servo a la posición inicial
+  
+  pinMode(buttonPin1, INPUT_PULLUP); // Configurar el botón como entrada con pull-up
+  pinMode(buttonPin2, INPUT_PULLUP); // Configurar el botón como entrada con pull-up
+  pinMode(buttonPin3, INPUT_PULLUP); // Configurar el botón como entrada con pull-up
+  pinMode(buttonPin4, INPUT_PULLUP); // Configurar el botón como entrada con pull-up
+  
+  pinMode(ledRoja, OUTPUT);
+  pinMode(ledAzul, OUTPUT);
+  pinMode(ledVerde, OUTPUT);
+}
+
+void loop() {
+  if (digitalRead(buttonPin1) == LOW) {
+    // Botón B1 presionado, aumentar el ángulo hacia la derecha
+    angle += increment;
+    if (angle > 180) {
+      angle = 180; // Limitar el ángulo máximo
+    }
+    myservo.write(angle); // Mover el servo a la nueva posición
+    delay(100); // Retardo para evitar cambios rápidos al presionar el botón
+  }
+
+  if (digitalRead(buttonPin2) == LOW) {
+    // Botón B2 presionado, mover el servo hacia la izquierda
+    angle -= increment;
+    if (angle < 0) {
+      angle = 0; // Limitar el ángulo mínimo
+    }
+    myservo.write(angle); // Mover el servo a la nueva posición
+    delay(100); // Retardo para evitar cambios rápidos al presionar el botón
+  }
+
+if (digitalRead(buttonPin3) == LOW) {
+  // Botón B3 presionado, cambiar el estado del servo y el LED
+  if (ledSelec == 0) {
+    angle = 0;
+    ledSelec = 1;
+    analogWrite(ledRoja, 0);
+    analogWrite(ledAzul, 0);
+    analogWrite(ledVerde, 255); // Encender la LED verde en lugar de la azul
+    delay(100);
+  } else if (ledSelec == 1) {
+    angle = 90;
+    ledSelec = 2;
+    analogWrite(ledRoja, 0);
+    analogWrite(ledAzul, 0);
+    analogWrite(ledVerde, 0); // Apagar la LED verde
+    delay(100);
+  } else if (ledSelec == 2) {
+    angle = 180;
+    ledSelec = 3;
+    analogWrite(ledRoja, 255);
+    analogWrite(ledAzul, 0);
+    analogWrite(ledVerde, 0);
+    delay(100);
+  } else {
+    ledSelec = 0;
+    analogWrite(ledRoja, 0);
+    analogWrite(ledAzul, 0);
+    analogWrite(ledVerde, 0);
+    delay(100);
+  }
+  myservo.write(angle); // Mover el servo a la nueva posición
+  delay(100); // Retardo para evitar cambios rápidos al presionar el botón
+  }
 }
